@@ -15,6 +15,7 @@ import sys
 import resources_rc
 import webbrowser
 import urllib.parse
+from format_Style import strandFormat
 
 #This class calls for the UI, and also all the functions inside when 'executing the window.
 class fvmutaciones(QtWidgets.QDialog):
@@ -125,8 +126,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             result = analysis1.analysis(self.ruta, self.limits.text(), limit)
             if isinstance(result, tuple):
-                resultmArn = "".join(result[1])
-                result35 = "".join(result[2])
+
+                resultmArn = result[1]
+                result35 = result[2]
                 protSeq = result[3]
                 estats = result[4]
                 self.fragmento = result[5]

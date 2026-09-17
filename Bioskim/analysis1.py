@@ -1,5 +1,5 @@
 from collections import Counter
-
+from format_Style import strandFormat
 from pyqtgraph.examples.console_exception_inspection import raiseException
 
 #Diccionarios que le robé a dani pq no quiero copiar esta mierda (y lo modifique pq estaba una mierda tbmn)
@@ -44,49 +44,6 @@ def readFile(file):
     except Exception as e:
         return f"Error: {str(e)}"
 
-def format_forDNA(seq, rango):
-    count = 0
-    vcount = 0
-    finalArray = []  # this is the array that must contain the format.
-    tempArray = []
-    message = []
-    lower = 0
-    upper = 0
-    try:
-        inicio, fin = rango.split("-")
-        inicio, fin = int(inicio), int(fin)
-
-        strand = seq[inicio-1: fin]
-
-        for x in strand:
-            count += 1
-            vcount += 1
-            tempArray.append(x)
-            if count == 60 or vcount == len(strand):
-                count = 0
-                finalArray.append("".join(tempArray))
-                tempArray = []
-            else:
-                continue
-
-        for x in range(0, len(finalArray)):
-            lower = upper + 1
-            upper = upper + len(finalArray[x])
-            if len(strand) > 60:
-                temp = f"{lower}-{strand}-{upper}"
-                message.append(temp)
-
-            elif len(strand) < 60:
-                temp = f"{lower}-{strand}-{upper}"
-                message.append(temp)
-
-            fmessage = "\n".join(message)
-        lower = 0
-        upper = 0
-        return fmessage
-
-    except:
-        print("An error has occurred")
 def analysis(file, rango, limit):
     prot1 = []
     prot3 = []
@@ -128,13 +85,14 @@ def analysis(file, rango, limit):
 
 
 
-        res1 = format_forDNA(seq, rango)
+        res1 = strandFormat.format_forDNA(seq, rango, inicio, fin)
         #Make strand the corrected text, hence write an algorithm here to organize it the nice way.
         print(type(strand))
         print(strand)
-        res2 = mArn
-        res3 = ncStrand
-        res4 = "".join(strand)
+        res2 = strandFormat.format_forDNA("".join(mArn), rango, inicio, fin)
+        res3 = strandFormat.format_forDNA("".join(ncStrand), rango, inicio, fin)
+        res4 = strandFormat.format_forDNA("".join(strand), rango, inicio, fin)
+        #res4 = "".join(strand)
         #Remember if u place return a,b. youll have an array of the different str values. such that outppu = [a,b].
 
         # 3. mArn to Protein:
