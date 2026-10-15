@@ -10,11 +10,14 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
+import os
 import analysis1
 import sys
 import resources_rc
 import webbrowser
 import urllib.parse
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
 
 #This class calls for the UI, and also all the functions inside when 'executing the window.
 class fvmutaciones(QtWidgets.QDialog):
@@ -83,8 +86,8 @@ class vmutaciones(QtWidgets.QDialog):
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
-        super(Ui_MainWindow, self).__init__()
-        uic.loadUi('BiosKimGUI.ui', self)
+        super().__init__()
+        uic.loadUi(os.path.join(BASE_DIR, 'BiosKimGUI.ui'), self)
         #Para el path del archivo:
         self.ruta = None
         #Conecciones con los botones y demás.
