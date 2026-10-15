@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtWidgets
-from BiosKimGUI import Ui_MainWindow
-from analysis1 import *
+from Scripts.BiosKimGUI import Ui_MainWindow
+from Scripts.analysis1 import *
 def startUp():
     app = QtWidgets.QApplication(sys.argv)
     ventana = Ui_MainWindow()
