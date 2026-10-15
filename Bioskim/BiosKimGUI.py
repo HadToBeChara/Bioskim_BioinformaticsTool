@@ -16,6 +16,7 @@ import sys
 import resources_rc
 import webbrowser
 import urllib.parse
+from format_Style import strandFormat
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
 
@@ -97,7 +98,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.AnalysisBttn.clicked.connect(self.ejecutar_analysis)
         self.BlastBttn.clicked.connect(self.BlastX)
 
-    def BlastX(self):
+    def BlastX(self):  #This is for the blast (opens NCBI).
         if hasattr(self, 'proteina') and self.proteina:
             secuencia = self.proteina
             url = (
@@ -114,6 +115,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.AnalysisResult.setText("Error: You must First do an analysis.")
     def ejecutar_analysis(self):
         try:
+            #Im just trying to get the upper limit:
+            resultado = analysis1.readFile(self.ruta)
+            if isinstance(resultado, tuple):
+                limit = resultado[1]
+
             file = self.ruta
             rango = self.limits.text()
             if not file or not rango:
@@ -121,10 +127,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     self.AnalysisResult.setText("Must select a file and assign a range first.")
                 return
 
-            result = analysis1.analysis(self.ruta, self.limits.text())
+            result = analysis1.analysis(self.ruta, self.limits.text(), limit)
             if isinstance(result, tuple):
-                resultmArn = "".join(result[1])
-                result35 = "".join(result[2])
+
+                resultmArn = result[1]
+                result35 = result[2]
                 protSeq = result[3]
                 estats = result[4]
                 self.fragmento = result[5]
@@ -151,7 +158,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     self.AnalysisResult.setText(str(result))
         except Exception as e:
             print(f"Crash Avoided. Error: {e}")
-    def PrimerAnalisis(self):
+    def PrimerAnalisis(self): #Hace los primeros calculos: GC%, contador de nucleotidos, etc.
         if self.ruta:
             resultado = analysis1.readFile(self.ruta)
             if isinstance(resultado, tuple):

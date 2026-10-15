@@ -1,4 +1,6 @@
 from collections import Counter
+from format_Style import strandFormat
+from pyqtgraph.examples.console_exception_inspection import raiseException
 
 #Diccionarios que le robé a dani pq no quiero copiar esta mierda (y lo modifique pq estaba una mierda tbmn)
 DiccionarioUwU = {
@@ -13,30 +15,36 @@ DiccionarioUwU = {
     'UAA': ('STOP','*'), 'UAG': ('STOP','*'), 'UGA': ('STOP','*')
 }
 
-
-def readFile(file):
+def oppenFile(file):
     try:
-        #deletion part of the non important elements
-        with open(file, 'r') as data: #data is the name of the file variable for the reading process
-            lineas = data.readlines()
+        with open(file, 'r') as data:  # data is the name of the file variable for the reading process
+            lineas = data.readlines()  # Readlines will read each line and will output an array with all the data.
 
             seq = "".join(lineas).replace("\n", "").upper()
             if seq.startswith(">"):
                 seq = "".join(lineas[1:]).replace("\n", "").upper()
             else:
                 seq = "".join(lineas).replace("\n", "").upper()
-            qtyGuanina = seq.count("G")
-            qtyCitosina = seq.count("C")
-            total = len(seq)
-            if total ==0: return 0
-            GCpercentage = ((qtyCitosina + qtyGuanina)/total) *100
-            return round(GCpercentage, 2), total
+        return seq
+    except Exception as e:
+        return f"Error: {e}"
+
+
+def readFile(file):
+    try:
+        #deletion part of the non important elements
+        seq = oppenFile(file)
+        qtyGuanina = seq.count("G")
+        qtyCitosina = seq.count("C")
+        total = len(seq)
+        if total ==0: return 0
+        GCpercentage = ((qtyCitosina + qtyGuanina)/total) *100
+        return round(GCpercentage, 2), total
 
     except Exception as e:
         return f"Error: {str(e)}"
 
-
-def analysis(file, rango):
+def analysis(file, rango, limit):
     prot1 = []
     prot3 = []
     try:
@@ -47,67 +55,67 @@ def analysis(file, rango):
         ncStrand = []
         #mArn
         mArn = []
-        with open(file, 'r') as data: #data is the name of the file variable for the reading process
-            lineas = data.readlines()
-            seq = "".join(lineas[1:]).replace("\n", "").upper()
-            strand = seq[inicio-1: fin]
+        seq = oppenFile(file)
+        strand = seq[inicio-1: fin]
 
-            if not strand:
-                return "Rango fuera de los limites de la secuencia."
-            #Hier as kontinue die oprazionen.
-            #1. Cadena 3' a 5'.
-            for x in strand:
-                if x == 'A':
-                    ncStrand.append('T')
-                elif x =='G':
-                    ncStrand.append("C")
-                elif x=='C':
-                    ncStrand.append("G")
-                elif x=='T':
-                    ncStrand.append("A")
+        if not strand or fin > limit:
+            return "Rango fuera de los limites de la secuencia."
+        #Hier as kontinue die oprazionen.
+        #1. Cadena 3' a 5'.
+        for x in strand:
+            if x == 'A':
+                ncStrand.append('T')
+            elif x =='G':
+                ncStrand.append("C")
+            elif x=='C':
+                ncStrand.append("G")
+            elif x=='T':
+                ncStrand.append("A")
 
             #2. mArn
-            for y in ncStrand:
-                if y =="C":
-                    mArn.append('G')
-                elif y =="G":
-                    mArn.append('C')
-                elif y =="T":
+        for y in ncStrand:
+            if y =="C":
+                mArn.append('G')
+            elif y =="G":
+                mArn.append('C')
+            elif y =="T":
                     mArn.append('A')
-                elif y =="A":
-                    mArn.append('U')
+            elif y =="A":
+                mArn.append('U')
 
 
 
-            res1 = f"Secuencia exraída desde {inicio} a {fin}: \n {strand}"
-            res2 = mArn
-            res3 = ncStrand
-            res4 = "".join(strand)
-            #Remember if u place return a,b. youll have an array of the different str values. such that outppu = [a,b].
+        res1 = strandFormat.format_forDNA(seq, rango, inicio, fin)
+        #Make strand the corrected text, hence write an algorithm here to organize it the nice way.
+        print(type(strand))
+        print(strand)
+        res2 = strandFormat.format_forDNA("".join(mArn), rango, inicio, fin)
+        res3 = strandFormat.format_forDNA("".join(ncStrand), rango, inicio, fin)
+        res4 = strandFormat.format_forDNA("".join(strand), rango, inicio, fin)
+        #res4 = "".join(strand)
+        #Remember if u place return a,b. youll have an array of the different str values. such that outppu = [a,b].
 
-            # 3. mArn to Protein:
-            StrmArn = "".join(mArn)
-            for i in range(0,len(StrmArn)// 3 * 3,3):
-                codon = StrmArn[i:i+3]
-                e3,e1 = DiccionarioUwU.get(codon,('???','?'))
+        # 3. mArn to Protein:
+        StrmArn = "".join(mArn)
+        for i in range(0,len(StrmArn)// 3 * 3,3):
+            codon = StrmArn[i:i+3]
+            e3,e1 = DiccionarioUwU.get(codon,('???','?'))
 
-                if e3 == 'STOP':
-                    break
-                prot3.append(e3)
-                prot1.append(e1)
+            if e3 == 'STOP':
+                break
+            prot3.append(e3)
+            prot1.append(e1)
 
-            totAA = len(prot1)
-            cuenta = Counter(prot1)
-            stats = {
-                aa: {
-                    "cantidad": cant,
-                    "porcentaje": round((cant/ totAA)*100,2),
-                    "": "\n"
-                } for aa, cant in cuenta.items()
-            }if totAA > 0 else{}
-
-
-            return res1, res2, res3, "".join(prot1), stats, res4
+        totAA = len(prot1)
+        cuenta = Counter(prot1)
+        stats = {
+            aa: {
+                "cantidad": cant,
+                "porcentaje": round((cant/ totAA)*100,2),
+                "": "\n"
+            } for aa, cant in cuenta.items()
+        }if totAA > 0 else{}
+        return res1, res2, res3, "".join(prot1), stats, res4
     except ValueError:
         return "Error: utilice el formato de rango indicado."
     except FileNotFoundError:
@@ -127,4 +135,4 @@ def Transcripcion(ADN):
             break
         prot1.append(e1)
         res1 = "".join(prot1)
-    return res1
+        return res1
